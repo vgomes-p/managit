@@ -65,12 +65,6 @@ managit/project/
 │ │ ├── 🐍 colors.py
 │ │ └── 🐍 nbr.py
 │ └── 🐍 __init__.py
-├── 📁 managit.egg-info
-│ ├── 📄 PKG-INFO
-│ ├── 📄 SOURCES.txt
-│ ├── 📄 dependency_links.txt
-│ ├── 📄 entry_points.txt
-│ └── 📄 top_level.txt
 ├── 📄 Makefile
 └── 🐍 setup.py
 ```
