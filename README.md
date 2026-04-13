@@ -23,15 +23,16 @@ A simple, interactive CLI tool that helps you manage your Git repositories with 
 
 ```bash
 cd project
-pip install -e .
+make install_as_dev
 ```
-This will install the managit command globally (editable mode).
+> This will install the managit command globally from the git file (editable mode).
 
 ### Build & Install
 ```Bash
 cd project
-make install
+make install_global
 ```
+> This will install the managit command globally from a hidden file at home (~/.managit).
 
 ### Usage
 Simply run:
@@ -53,20 +54,30 @@ managit --start
 ## Project Structure
 ```text
 managit/project/
-├── 📁 managit
-│ ├── 📁 src
-│ │ ├── 🐍 __init__.py
-│ │ ├── 🐍 get_commit_info.py
-│ │ ├── 🐍 main.py
-│ │ └── 🐍 managitshell.py
-│ ├── 📁 utils
-│ │ ├── 🐍 __init__.py
-│ │ ├── 🐍 clear.py
-│ │ ├── 🐍 colors.py
-│ │ └── 🐍 nbr.py
-│ └── 🐍 __init__.py
-├── 📄 Makefile
-└── 🐍 setup.py
+├── 📁 project
+│   ├── 📁 managit
+│   │   ├── 📁 src
+│   │   │   ├── 🐍 __init__.py
+│   │   │   ├── 🐍 get_commit_info.py
+│   │   │   ├── 🐍 git_cmds.py
+│   │   │   ├── 🐍 main.py
+│   │   │   ├── 🐍 managitshell.py
+│   │   │   ├── 🐍 shell_cmds.py
+│   │   │   └── 🐍 shells_prompt.py
+│   │   ├── 📁 utils
+│   │   │   ├── 🐍 __init__.py
+│   │   │   ├── 🐍 clear.py
+│   │   │   ├── 🐍 colors.py
+│   │   │   └── 🐍 nbr.py
+│   │   └── 🐍 __init__.py
+│   ├── 📄 Makefile
+│   └── 🐍 setup.py
+├── 📁 src
+│   ├── 🖼️ commiting.png
+│   └── 🖼️ intro.png
+├── ⚙️ .gitignore
+├── 📄 LICENSE
+└── 📝 README.md
 ```
 
 ## Tech Stack
