@@ -38,6 +38,18 @@ def handle_pull(path: str):
         print(f"{PRMT.ERR}Error on accessing the repository directory: {e}{DEFAULT}")
 
 
+def handle_status(path: str):
+    fpath = os.path.expanduser(path)
+
+    try:
+        ret = subprocess.run(["git", "status"], cwd=fpath, check=True, text=True, capture_output=True)
+        print(ret.stdout, end="")
+    except FileNotFoundError:
+        print(f"{PRMT.ATT}No '.git' was found in the current path {PINK}'{path}'!{DEFAULT}")
+    except OSError as e:
+        print(f"{PRMT.ERR}Error on accessing the repository directory: {e}{DEFAULT}")
+
+
 def mk_add(path: str):
     fpath = os.path.expanduser(path)
     try:
