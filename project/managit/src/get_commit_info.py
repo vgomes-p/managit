@@ -1,4 +1,4 @@
-from managit.utils.colors import RED, CYAN, DEFAULT
+from managit.utils.colors import RED, CYAN, DEFAULT, BOLD
 from managit.utils.nbr import is_valid_number
 from managit.utils.clear import clear
 
@@ -75,11 +75,12 @@ def _error(pos: str):
 
 
 def _add_more_detail():
-    print(f"{CYAN}Note, each detail will be added as a message (-m '<what you adding>')!")
+    print(f"{CYAN}Note, each detail will be added as a message (-m '<what you adding>')!\n",
+          "Note: 'cancel' does not work in the input mode, entry 'eof' and 'EOF' finish input mode.")
     add = 'y'
     more_detail = []
     while add == 'y':
-        print(f"{CYAN}┌['eof' and 'EOF' finish input mode]───────────────────────────────┐")
+        print(f"{CYAN}┌[INPUT MODE, 'eof' and 'EOF' finish]──────────────────────────────┐")
         print("│ Write what you want to add, this is the time to explain things!  │")
         detail_to_add = []
         while True:
@@ -94,49 +95,57 @@ def _add_more_detail():
         print(f"{CYAN}┌──────────────────────────────────────────────────────────────────┐")
         print(f"│ Do you want to add more details? Time to give more details...    │")
         print(f"└['y' for yes and 'n' for no]──────────────────────────────────────┘{DEFAULT}")
-        check = input("-> ").lower()
+        check = input(f"{BOLD}-> ").lower() + DEFAULT
         while True:
-            if check == 'y':
+            if check == "cancel":
+                return []
+            elif check == 'y':
                 break
             elif check == 'n':
                 add = check
                 break
             else:
-                check = input(f"{RED}Invalid entry, please choose 'y' or 'n': {DEFAULT}")
+                check = input(f"{RED}Invalid entry, please choose 'y' or 'n': {DEFAULT}{BOLD}")
                 continue
     return more_detail
 
 
 def get_commit_info():
-    pick_type = input(f"{CYAN}{INIT_TXT}{DEFAULT}\n-> ").strip()
+    pick_type = input(f"{CYAN}{INIT_TXT}{DEFAULT}{BOLD}\n-> ").strip()
     while True:
         valid_entry = ["1", "2", "3"]
-        if is_valid_number(pick_type) and str(pick_type) in valid_entry:
+        if pick_type == "cancel":
+            return "canceled", []
+        elif is_valid_number(pick_type) and str(pick_type) in valid_entry:
             break
         else:
-            pick_type = input(f"{RED}Invalid entry, please choose 1, 2 or 3: {DEFAULT}")
+            pick_type = input(f"{RED}Invalid entry, please choose 1, 2 or 3: {DEFAULT}{BOLD}")
             continue
 
     type_picked = str(init_dict[int(pick_type)])
     if type_picked == "code":
-        pick_tag = input(f"{CYAN}{CODE_TXT}{DEFAULT}\n-> ")
+        pick_tag = input(f"{CYAN}{CODE_TXT}{DEFAULT}\n{BOLD}-> ")
         while True:
             valid_entry = ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
-            if is_valid_number(pick_tag) and str(pick_tag) in valid_entry:
+            if pick_tag == "cancel":
+                return "canceled", []
+            elif is_valid_number(pick_tag) and str(pick_tag) in valid_entry:
                 break
             else:
-                pick_tag = input(f"{RED}Invalid entry, please choose a number between 1 and 9: {DEFAULT}")
+                pick_tag = input(f"{RED}Invalid entry, please choose a number between 1 and 9: {DEFAULT}{BOLD}")
                 continue
         tag_picked = code_dict[int(pick_tag)]
 
     elif type_picked == "process":
-        pick_tag = input(f"{CYAN}{PROCESS_TXT}{DEFAULT}\n-> ")
+        pick_tag = input(f"{CYAN}{PROCESS_TXT}{DEFAULT}\n{BOLD}-> ")
         while True:
             valid_entry = ["1", "2"]
-            if is_valid_number(pick_tag) and str(pick_tag) in valid_entry:
+            if pick_tag == "cancel":
+                return "canceled", []
+            elif is_valid_number(pick_tag) and str(pick_tag) in valid_entry:
                 break
             else:
-                pick_tag = input(f"{RED}Invalid entry, please choose 1 or 2: {DEFAULT}")
+                pick_tag = input(f"{RED}Invalid entry, please choose 1 or 2: {DEFAULT}{BOLD}")
                 continue
         tag_picked = process_dict[int(pick_tag)]
 
@@ -151,8 +160,8 @@ def get_commit_info():
     else:
         _error("get_commit_info(): failed to pick explanation text")
 
-    print(f"{CYAN}Note: 'eof' and 'EOF' finish input mode.\nThis is a sum up, not the whole explanation, keep is short!")
-    print("┌──────────────────────────────────────────────────────────────────┐")
+    print(f"{CYAN}Note: 'cancel' does not work in this input mode, entry 'eof' and 'EOF' finish input mode.\nThis is a sum up, not the whole explanation, keep is short!")
+    print(f"{CYAN}┌[INPUT MODE, 'eof' and 'EOF' finish]──────────────────────────────┐")
     print(f"│ Tell me more about {explain_txt}", " " * (44 - len(explain_txt)), "│")
     cmt_explain = []
     while True:
@@ -168,16 +177,18 @@ def get_commit_info():
     print(f"{CYAN}┌──────────────────────────────────────────────────────────────────┐")
     print(f"│ Do you want to add more details? Time to give more details...    │")
     print(f"└['y' for yes and 'n' for no]──────────────────────────────────────┘{DEFAULT}")
-    yon = input("-> ").lower()
+    yon = input(f"{BOLD}-> ").lower()
     more_detail = []
     while True:
-        if yon == 'y':
+        if yon == "cancel":
+            return "canceled", []
+        elif yon == 'y':
             more_detail = _add_more_detail()
             break
         elif yon == 'n':
             break
         else:
-            yon = input(f"{RED}Invalid entry, please choose 'y' or 'n': {DEFAULT}")
+            yon = input(f"{RED}Invalid entry, please choose 'y' or 'n': {DEFAULT}{BOLD}")
             continue
 
     return main_commit, more_detail
