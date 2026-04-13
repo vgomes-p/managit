@@ -127,20 +127,25 @@ def handle_commit(path: str):
 
 
 def mk_push(path: str, force: bool = False):
+    fpath = os.path.expanduser(path)
     try:
         if force:
             ord = ["git", "push", "--force"]
         else:
             ord = ["git", "push"]
-        subprocess.run(ord, check=True, capture_output=True)
+        subprocess.run(ord, cwd=fpath, check=True, capture_output=True, text=True)
     except FileNotFoundError:
         print(f"{YLOW}No .git was found in the current path {PINK}'{path}'!{DEFAULT}")
+    except subprocess.CalledProcessError as e:
+        print(f"{shell_err} push failed: {e}{DEFAULT}")
+    except OSError as e:
+        print(f"{shell_err} {e}{DEFAULT}")
 
 
 def handle_push(path):
     print(f"{shell}Do you want to force push? ['y' for yes, 'n' for no]")
     while True:
-        check = input(usershell).lower() + DEFAULT
+        check = input(usershell).lower()
         if check == "cancel":
             return
         elif check == 'y':

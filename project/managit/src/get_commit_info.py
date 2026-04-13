@@ -95,7 +95,7 @@ def _add_more_detail():
         print(f"{CYAN}┌──────────────────────────────────────────────────────────────────┐")
         print(f"│ Do you want to add more details? Time to give more details...    │")
         print(f"└['y' for yes and 'n' for no]──────────────────────────────────────┘{DEFAULT}")
-        check = input(f"{BOLD}-> ").lower() + DEFAULT
+        check = input(f"{BOLD}-> ").lower()
         while True:
             if check == "cancel":
                 return []
