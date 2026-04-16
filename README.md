@@ -1,6 +1,7 @@
 # ManaGit | Your Personal Git Manager 🚀
 ![ManaGit | Your Personal Git Manager](src/intro.png)
 
+
 A simple, interactive CLI tool that helps you manage your Git repositories with an intuitive shell interface. Perfect for developers who want a streamlined workflow for pulling, committing, and pushing changes.
 
 ![ManaGit working on commiting mode](src/commiting.png)
@@ -54,30 +55,30 @@ managit --start
 ## Project Structure
 ```text
 managit/project/
-├── 📁 project
-│   ├── 📁 managit
-│   │   ├── 📁 src
-│   │   │   ├── 🐍 __init__.py
-│   │   │   ├── 🐍 get_commit_info.py
-│   │   │   ├── 🐍 git_cmds.py
-│   │   │   ├── 🐍 main.py
-│   │   │   ├── 🐍 managitshell.py
-│   │   │   ├── 🐍 shell_cmds.py
-│   │   │   └── 🐍 shells_prompt.py
-│   │   ├── 📁 utils
-│   │   │   ├── 🐍 __init__.py
-│   │   │   ├── 🐍 clear.py
-│   │   │   ├── 🐍 colors.py
-│   │   │   └── 🐍 nbr.py
-│   │   └── 🐍 __init__.py
-│   ├── 📄 Makefile
-│   └── 🐍 setup.py
-├── 📁 src
-│   ├── 🖼️ commiting.png
-│   └── 🖼️ intro.png
-├── ⚙️ .gitignore
-├── 📄 LICENSE
-└── 📝 README.md
+├─ 📁 project
+│ ├─ 📁 managit
+│ │ ├─ 📁 src
+│ │ │ ├─ 🐍 __init__.py
+│ │ │ ├─ 🐍 get_commit_info.py
+│ │ │ ├─ 🐍 git_cmds.py
+│ │ │ ├─ 🐍 main.py
+│ │ │ ├─ 🐍 managitshell.py
+│ │ │ ├─ 🐍 shell_cmds.py
+│ │ │ └─ 🐍 shells_prompt.py
+│ │ ├─ 📁 utils
+│ │ │ ├─ 🐍 __init__.py
+│ │ │ ├─ 🐍 clear.py
+│ │ │ ├─ 🐍 colors.py
+│ │ │ └─ 🐍 nbr.py
+│ │ └─ 🐍 __init__.py
+│ ├─ 📄 Makefile
+│ └─ 🐍 setup.py
+├─ 📁 src
+│ ├─ 🖼️ commiting.png
+│ └─ 🖼️ intro.png
+├─ ⚙️ .gitignore
+├─ 📄 LICENSE
+└─ 📝 README.md
 ```
 
 ## Tech Stack

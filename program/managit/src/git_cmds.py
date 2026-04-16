@@ -1,9 +1,14 @@
-from managit.utils.colors import PINK, DEFAULT
+from managit.utils.colors import CYAN, GREEN, YLOW, RED, PINK, DEFAULT
 from managit.src.get_commit_info import get_commit_info
+from managit.src.parser_git_status import handle_print_status
 import managit.src.shells_prompt as PRMT
 from time import sleep
 import subprocess
 import os
+
+
+NEW_UNTRACKED_TEXT = "\nUntracked files (run 'commit' to include them in next push):"
+OLD_UNTRACKED_TEXT = "  (use \"git add <file>...\" to include in what will be committed)"
 
 
 def get_pull(path: str):
@@ -38,12 +43,39 @@ def handle_pull(path: str):
         print(f"{PRMT.ERR}Error on accessing the repository directory: {e}{DEFAULT}")
 
 
+def print_status(entry: str):
+    lines = entry.split('\n')
+    untracked = 0
+    for line in lines:
+        if untracked:
+            if line == "":
+                untracked = 0
+                continue
+            if line == OLD_UNTRACKED_TEXT:
+                fline, init_color = NEW_UNTRACKED_TEXT, CYAN
+            else:
+                fline, init_color = line.strip(), GREEN
+        elif "modified" in line:
+            fline, init_color = line.strip().replace("   ", " "), YLOW
+        elif "removed" in line:
+            fline, init_color = line.strip().replace("   ", " "), RED
+        elif "renamed" in line:
+            fline, init_color = line.strip().replace("   ", " "), PINK
+        elif "Untracked" in line:
+            untracked = 1
+        else:
+            continue
+        print(f"  {init_color}{fline}{DEFAULT}")
+
 def handle_status(path: str):
     fpath = os.path.expanduser(path)
-
     try:
-        ret = subprocess.run(["git", "status"], cwd=fpath, check=True, text=True, capture_output=True)
-        print(ret.stdout, end="")
+        #new flags: "--porcelain=v2", "--branch"
+        #ret = subprocess.run(["git", "status"], cwd=fpath, check=True, text=True, capture_output=True)
+        #print_status(ret.stdout)
+        ret = subprocess.run(["git", "status", "--porcelain=v2", "--branch"], cwd=fpath, check=True, text=True, capture_output=True)
+        handle_print_status(ret.stdout)
+        #print(ret.stdout, end="")
     except FileNotFoundError:
         print(f"{PRMT.ATT}No '.git' was found in the current path {PINK}'{path}'!{DEFAULT}")
     except OSError as e:
@@ -67,8 +99,9 @@ def mk_commit(path: str, commit_text: str, other_text: list = []):
         ord = ["git", "commit", "-m"]
         ord.append(commit_text)
         for i in other_text:
-            ord.append("-m")
-            ord.append(i)
+            if i != '':
+                ord.append("-m")
+                ord.append(i)
         subprocess.run(ord, cwd=fpath, check=True, capture_output=True)
     except FileNotFoundError:
         print(f"{PRMT.ATT}No '.git' was found in the current path {PINK}'{path}'!{DEFAULT}")
