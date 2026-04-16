@@ -2,82 +2,129 @@
 ![ManaGit | Your Personal Git Manager](src/intro.png)
 
 
-A simple, interactive CLI tool that helps you manage your Git repositories with an intuitive shell interface. Perfect for developers who want a streamlined workflow for pulling, committing, and pushing changes.
+### ManaGit is a CLI tool designed to manage and automate workflows across multiple Git repositories from a single interface.
+
+### It provides both command-line options and an interactive shell to streamline repository maintenance, updates, and status tracking.
 
 ![ManaGit working on commiting mode](src/commiting.png)
 
 ## Features
-
 - **Interactive shell** with a clean, colorful interface
-- `pull` — Check if you're behind origin and pull automatically
-- `commit` — Smart guided commit process using conventional commit style prefixes:
-  - `feat:`, `fix:`, `refactor:`, `perf:`, `style:`, `chore:`, etc.
-  - Interactive prompts for commit type and detailed description
-- `push` — Push changes (with optional force push)
-- `clear` — Clear the screen
-- Beautiful ASCII art on startup
+- `pull`
+- `status`
+- `add`
+- `commit`
+- `push`
+- `branch`
+- Some shell commands
 - Safe signal handling (blocks Ctrl+C inside the shell)
 
 ## Installation
 
-### From source (recommended during development)
-
-```bash
-cd project
-make install_as_dev
-```
-> This will install the managit command globally from the git file (editable mode).
-
-### Build & Install
+### Install as package (sudo permission needed):
 ```Bash
 cd project
-make install_global
+make install
 ```
-> This will install the managit command globally from a hidden file at home (~/.managit).
+
+### Install as alias:
+#### 1. Prepare the enviroment
+```bash
+make create-env
+```
+
+#### 2. Create the alias
+##### 2.1 - Open your shell rc file (example with bash)
+```bash
+nano ~/.bashrc
+```
+
+##### 2.2 Pass the alias to your 
+> remember to change `"python3"` with you python interpreter
+```bash
+alias py="python3"
+alias managit="py ~/.managit/program/managit/src/run_managit.py"
+```
+
+##### 2.3 Save the changes
+```bash
+CTRL^X
+Y
+ENTER
+```
+
+##### 2.4 - Update
+```bash
+source ~/.bashrc
+```
+
+#### 3. Call it
+```bash
+managit
+```
+> This will not install managit as a package, so if you need to update it, you can go to repository with `cd ~/.managit`and run pull or create the alias managit-update (intructions in the end of the README).
 
 ### Usage
 Simply run:
 ```Bash
 managit
 ```
-Or:
+Or (if installed as package):
 ```Bash
 managit --start
 ```
+#### Check the ManaGit preview:
+[![Preview ManaGit](https://img.shields.io/badge/Preview%20ManaGit-blue?style=for-the-badge)](PREVIEW.md)
+
 ## Commands inside the shell
 
 - pull — Pull latest changes from remote
-- commit — Stage all changes and create a guided commit
+- add — Add the intructed files to track
+- commit — Check untracked files and run commit message creator
 - push — Push to remote (asks if you want --force)
+- branch — create a new branch copying the main
 - clear — Clear terminal screen
+- cd — Navigate into repositories (also works just entering the path)
+- ls — show files in the current path
 - exit — Exit managit
+
+## Upcoming features
+- New colors
+- `deconflit` — to fix conflit between local and remote repository
+- `config` — to configure git user data
+- `restore` — to restore local repository
+- `clone` — to clone repository
+- `env_checker()` — do now allow commit with .env in track
 
 ## Project Structure
 ```text
 managit/project/
-├─ 📁 project
-│ ├─ 📁 managit
-│ │ ├─ 📁 src
-│ │ │ ├─ 🐍 __init__.py
-│ │ │ ├─ 🐍 get_commit_info.py
-│ │ │ ├─ 🐍 git_cmds.py
-│ │ │ ├─ 🐍 main.py
-│ │ │ ├─ 🐍 managitshell.py
-│ │ │ ├─ 🐍 shell_cmds.py
-│ │ │ └─ 🐍 shells_prompt.py
-│ │ ├─ 📁 utils
-│ │ │ ├─ 🐍 __init__.py
-│ │ │ ├─ 🐍 clear.py
-│ │ │ ├─ 🐍 colors.py
-│ │ │ └─ 🐍 nbr.py
-│ │ └─ 🐍 __init__.py
-│ ├─ 📄 Makefile
-│ └─ 🐍 setup.py
+├─ 📁 program
+│  ├─ 📁 managit
+│  │  ├─ 📁 src
+│  │  │  ├─ 🐍 __init__.py
+│  │  │  ├─ 🐍 get_commit_info.py
+│  │  │  ├─ 🐍 git_cmds.py
+│  │  │  ├─ 🐍 main.py
+│  │  │  ├─ 🐍 managitshell.py
+│  │  │  ├─ 🐍 parser_git_status.py
+│  │  │  ├─ 🐍 run_managit.py
+│  │  │  ├─ 🐍 shell_cmds.py
+│  │  │  └─ 🐍 shells_prompt.py
+│  │  ├─ 📁 utils
+│  │  │  ├─ 🐍 __init__.py
+│  │  │  ├─ 🐍 clear.py
+│  │  │  ├─ 🐍 colors.py
+│  │  │  └─ 🐍 nbr.py
+│  │  └─ 🐍 __init__.py
+│  ├─ 📄 Makefile
+│  ├─ 🐍 setup.py
+│  └─ 🐍 setup.py
 ├─ 📁 src
-│ ├─ 🖼️ commiting.png
-│ └─ 🖼️ intro.png
+│  └─ 🖼️ *.png
 ├─ ⚙️ .gitignore
 ├─ 📄 LICENSE
+├─ 📝 PREVIEW.md
 └─ 📝 README.md
 ```
 
