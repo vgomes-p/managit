@@ -236,7 +236,7 @@ def handle_push(path):
         else:
             print(f"{PRMT.MANA}please, answer 'y' for yes or 'n' for no!")
             continue
-    print(f"{PRMT.MANA}everything was pushed!")
+    print(f"{PRMT.MANA}Everything was pushed!")
 
 
 def mk_new_branch(path: str, branch_name: str, base_branch: str):
