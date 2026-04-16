@@ -6,6 +6,7 @@ INIT_TXT = """┌─ What type of commit is ────────────
 │ 1: Code related commit                                           │
 │ 2: Process related commit                                        │
 │ 3: Documentation                                                 │
+│ 0: Cancel commit                                                 │
 └──────────────────────────────────────────────────────────────────┘"""
 
 CODE_TXT = """┌─ What is the main type of change you've made for this commit? ───┐
@@ -18,11 +19,13 @@ CODE_TXT = """┌─ What is the main type of change you've made for this commit
 │ 7: Deleted something that was not being used                     │
 │ 8: Returning to the previous version due to a error              │
 │ 9: Made changed that didn't affected the code directly           │
+│ 0: Cancel commit                                                 │
 └──────────────────────────────────────────────────────────────────┘"""
 
 PROCESS_TXT = """┌─ What is the main type of change you've made for this commit? ───┐
 │ 1: Changes related to build and extern dependencies system       │
 │ 2: Changes related to continued-integration (CI/CD) process      │
+│ 0: Cancel commit                                                 │
 └──────────────────────────────────────────────────────────────────┘"""
 
 SCOPE_TXT = """╔═ What is a scope? ═══════════════════════════════════════════════╗
@@ -204,8 +207,8 @@ def get_commit_footer():
 def pick_type():
     pick_type = input(f"{CYAN}{INIT_TXT}{DEFAULT}{BOLD}\n-> ").strip()
     while True:
-        valid_entry = ["1", "2", "3"]
-        if pick_type == "cancel":
+        valid_entry = ["1", "2", "3", "0"]
+        if pick_type == "cancel" or str(pick_type) == "0":
             return "canceled"
         elif is_valid_number(pick_type) and str(pick_type) in valid_entry:
             break
@@ -219,8 +222,8 @@ def pick_tag(type_picked: str):
     if type_picked == "code":
         pick_tag = input(f"{CYAN}{CODE_TXT}{DEFAULT}\n{BOLD}-> ")
         while True:
-            valid_entry = ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
-            if pick_tag == "cancel":
+            valid_entry = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]
+            if pick_tag == "cancel" or str(pick_tag) == "0":
                 return "canceled"
             elif is_valid_number(pick_tag) and str(pick_tag) in valid_entry:
                 break
@@ -231,8 +234,8 @@ def pick_tag(type_picked: str):
     elif type_picked == "process":
         pick_tag = input(f"{CYAN}{PROCESS_TXT}{DEFAULT}\n{BOLD}-> ")
         while True:
-            valid_entry = ["1", "2"]
-            if pick_tag == "cancel":
+            valid_entry = ["1", "2", "0"]
+            if pick_tag == "cancel" or str(pick_tag) == "0":
                 return "canceled"
             elif is_valid_number(pick_tag) and str(pick_tag) in valid_entry:
                 break
@@ -266,14 +269,15 @@ def get_scope():
             return "canceled"
         elif answer == 'y':
             scope = input(f"{CYAN}What is the scope for this commit?{DEFAULT}\n{BOLD}-> ")
-            check_scope = input(f"{CYAN}The scope will be '{scope}', are you sure? ['y' for yes and 'n' for no, and 'c' to cancel commit]{DEFAULT}\n{BOLD}->")
             while True:
+                check_scope = input(f"{CYAN}The scope will be '{scope}', are you sure? ['y' for yes and 'n' for no, and 'c' to cancel commit]{DEFAULT}\n{BOLD}->")
                 if check_scope.lower() == 'c':
                     return 'canceled'
                 elif check_scope.lower() == 'y':
                     return f"({scope})"
                 elif check_scope.lower() == 'n':
                     scope = input(f"{CYAN}What is the scope for this commit?{DEFAULT}\n{BOLD}-> ")
+                    check_scope
                     continue
                 else:
                     print(f"{RED}Invalid entry, please choose 'y', 'n' or 'c'!{DEFAULT}")

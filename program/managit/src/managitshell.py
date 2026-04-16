@@ -2,7 +2,7 @@ from managit.utils.clear import clear
 from managit.utils.colors import CYAN, DEFAULT, GREEN, BOLD
 from managit.src.shells_prompt import update_shells_prompt
 import managit.src.shells_prompt as PRMT
-from managit.src.git_cmds import handle_commit, handle_new_branch, handle_pull, handle_push, handle_status
+from managit.src.git_cmds import handle_commit, handle_new_branch, handle_pull, handle_push, handle_status, handle_add
 from managit.src.shell_cmds import handle_cd, handle_ls, cnt_pipes, check_dir_exits, get_current_path
 from contextlib import contextmanager
 import signal
@@ -66,6 +66,8 @@ def managit_shell():
                 handle_cd(entry)
             elif check_dir_exits(entry):
                 handle_cd(entry)
+            elif entry.lower().startswith("add"):
+                handle_add(path, entry)
             elif entry.lower() == "clear":
                 clear()
             elif entry.lower().startswith("ls ") or entry.lower() == 'ls':

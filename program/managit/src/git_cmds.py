@@ -1,14 +1,10 @@
-from managit.utils.colors import CYAN, GREEN, YLOW, RED, PINK, DEFAULT
+from managit.utils.colors import CYAN, GREEN, YLOW, RED, PINK, DEFAULT, BOLD
 from managit.src.get_commit_info import get_commit_info
-from managit.src.parser_git_status import handle_print_status
+from managit.src.parser_git_status import handle_print_status, return_untracked
 import managit.src.shells_prompt as PRMT
 from time import sleep
 import subprocess
 import os
-
-
-NEW_UNTRACKED_TEXT = "\nUntracked files (run 'commit' to include them in next push):"
-OLD_UNTRACKED_TEXT = "  (use \"git add <file>...\" to include in what will be committed)"
 
 
 def get_pull(path: str):
@@ -17,6 +13,8 @@ def get_pull(path: str):
         ord = ["git", "pull"]
         subprocess.run(ord, cwd=fpath, check=True, capture_output=True)
         print(f"{PRMT.MANA}Updates pulled!")
+    except subprocess.CalledProcessError as e:
+        print(f"{PRMT.ERR}pulling failed: {e}{DEFAULT}")
     except FileNotFoundError:
         print(f"{PRMT.ATT}No .git was found in the current path {PINK}'{path}'!{DEFAULT}")
     except OSError as e:
@@ -37,60 +35,141 @@ def handle_pull(path: str):
             print(get_pull())
         else:
             print(f"{PRMT.MANA}Nothing to pull!")
+    except subprocess.CalledProcessError as e:
+        print(f"{PRMT.ERR}checking need of pulling failed: {e}{DEFAULT}")
     except FileNotFoundError:
         print(f"{PRMT.ATT}No '.git' was found in the current path {PINK}'{path}'!{DEFAULT}")
     except OSError as e:
         print(f"{PRMT.ERR}Error on accessing the repository directory: {e}{DEFAULT}")
 
-
-def print_status(entry: str):
-    lines = entry.split('\n')
-    untracked = 0
-    for line in lines:
-        if untracked:
-            if line == "":
-                untracked = 0
-                continue
-            if line == OLD_UNTRACKED_TEXT:
-                fline, init_color = NEW_UNTRACKED_TEXT, CYAN
-            else:
-                fline, init_color = line.strip(), GREEN
-        elif "modified" in line:
-            fline, init_color = line.strip().replace("   ", " "), YLOW
-        elif "removed" in line:
-            fline, init_color = line.strip().replace("   ", " "), RED
-        elif "renamed" in line:
-            fline, init_color = line.strip().replace("   ", " "), PINK
-        elif "Untracked" in line:
-            untracked = 1
-        else:
-            continue
-        print(f"  {init_color}{fline}{DEFAULT}")
 
 def handle_status(path: str):
     fpath = os.path.expanduser(path)
     try:
-        #new flags: "--porcelain=v2", "--branch"
-        #ret = subprocess.run(["git", "status"], cwd=fpath, check=True, text=True, capture_output=True)
-        #print_status(ret.stdout)
         ret = subprocess.run(["git", "status", "--porcelain=v2", "--branch"], cwd=fpath, check=True, text=True, capture_output=True)
         handle_print_status(ret.stdout)
-        #print(ret.stdout, end="")
+        #print(ret.stdout)
+    except subprocess.CalledProcessError as e:
+        print(f"{PRMT.ERR}status failed: {e}{DEFAULT}")
     except FileNotFoundError:
         print(f"{PRMT.ATT}No '.git' was found in the current path {PINK}'{path}'!{DEFAULT}")
     except OSError as e:
         print(f"{PRMT.ERR}Error on accessing the repository directory: {e}{DEFAULT}")
 
 
-def mk_add(path: str):
+def mk_add(path: str, files: list): #this is a mess, but i'm tired of working in add...
+    fpath = os.path.expanduser(path)
+    files_not_found = []
+    files_found = []
+    for file in files:
+        try:
+            ord = ["git", "add", file]
+            subprocess.run(ord, cwd=fpath, check=True, capture_output=True)
+            files_found.append(str(file))
+        except subprocess.CalledProcessError:
+            files_not_found.append(str(file))
+        except FileNotFoundError:
+            print(f"{PRMT.ATT}No '.git' was found in the current path {PINK}'{path}'!{DEFAULT}")
+        except OSError as e:
+            print(f"{PRMT.ERR}Error on accessing the repository directory: {e}{DEFAULT}")
+    files_cnt = len(files_found) + len(files_not_found)
+    if files_found:
+        for file_found in files_found:
+            if file_found == "." or file_found == "*" and files_cnt <= 1:
+                print(f"{GREEN}Successfully added the changes of all files within the \"{PINK}{fpath}{GREEN}\" path into track stage!{DEFAULT}")
+                break
+            if '*' in file_found and file_found != '*':
+                print(f"{GREEN}Successfully added the changes of all files within the \"{PINK}{file_found}{GREEN}\" pattern into track stage!{DEFAULT}")
+            else:
+                print(f"{GREEN}Successfully added the changes of '{PINK}{file_found}{GREEN}' into track stage!{DEFAULT}")
+    if files_not_found:
+        for file_not_found in files_not_found:
+            if file_not_found == "." or file_not_found == "*" and files_cnt <= 1:
+                print(f"{YLOW}ATTENTION: files within the \"{PINK}{fpath}{YLOW}\" path were not found!{DEFAULT}")
+                return
+            if '*' in file_not_found and file_not_found != '*':
+                print(f"{YLOW}ATTENTION: files within the \"{PINK}{file_not_found}{YLOW}\" pattern were not found!{DEFAULT}")
+            else:
+                print(f"{YLOW}ATTENTION:'{PINK}{file_not_found}{YLOW}' was not found to be added!{DEFAULT}")
+
+
+def _get_file_pattern_list(base_name: str):
+    init_nb = int(base_name[-5])
+    end_nb = int(base_name[-2])
+    splited = list(base_name)
+    for i in range(0, 6):
+        splited.pop(-1)
+    base_name = "".join(splited)
+    ret = []
+    for i in range(init_nb, end_nb + 1):
+        ret.append(f"{base_name}{i}")
+    return ret
+
+
+def handle_add(path: str, entry: str):
+    files = []
+    if entry.strip() == "add" or entry.strip() == "*":
+        files = ["."]
+    else:
+        entry = entry.replace("add ", "")
+        entry_files = entry.split()
+        for file in entry_files:
+            if file.endswith('}') and file[-6] == '{':
+                pattened_files = _get_file_pattern_list(file)
+                for pattened_file in pattened_files:
+                    files.append(pattened_file)
+            else:
+                files.append(file)
+    mk_add(path, files)
+
+
+def check_dir_exits(entry: str):
+    if entry == "~":
+        return True
+    dirs_at_path = os.listdir(".")
+    if "\\" in entry:
+        entry = entry.replace("\\", "/")
+    if "/" in entry:
+        entry_ls = entry.split("/")
+        entry_ls.pop(0)
+    else:
+        entry_ls = [entry]
+    to_check = entry_ls[0]
+    if to_check in dirs_at_path:
+        return True
+    return False
+
+
+def check_untracked(path: str):
     fpath = os.path.expanduser(path)
     try:
-        ord = ["git", "add", "."]
-        subprocess.run(ord, cwd=fpath, check=True, capture_output=True)
+        ret = subprocess.run(["git", "status", "--porcelain=v2", "--branch"], cwd=fpath, check=True, text=True, capture_output=True)
+        files_track_stage = return_untracked(ret.stdout)
+        untracked = 0
+        for file_status in files_track_stage:
+            if "untracked" in file_status or "not staged" in file_status and untracked == 0:
+                print(f"{YLOW}ATTENTION: Some files are untracked (run 'add' to include them in next commit):{DEFAULT}")
+                untracked = 1
+            if "not staged:" in file_status:
+                print(f"{RED}   [need to be add] | {file_status.replace('\n', '').strip()}{DEFAULT}")
+            elif str(file_status).strip().startswith("untracked"):
+                print(f"{RED}   [need to be add] | {file_status.replace('\n', '').strip()}{DEFAULT}")
+        if untracked:
+            answer = input(f"{CYAN}Do you want to continue to commit without adding this files?\n{DEFAULT + BOLD}['y' for yes, 'n' for no]\n-> ")
+            while True:
+                if answer == 'y':
+                    break
+                elif answer == 'n':
+                    return "canceled"
+                else:
+                    answer = input(f"{CYAN}Please, answer 'y' for yes or 'n' for no!\n{DEFAULT + BOLD}-> ")
+    except subprocess.CalledProcessError:
+        pass
     except FileNotFoundError:
-        print(f"{PRMT.ATT}No '.git' was found in the current path {PINK}'{path}'!{DEFAULT}")
+        pass
     except OSError as e:
-        print(f"{PRMT.ERR}Error on accessing the repository directory: {e}{DEFAULT}")
+        pass
+    return "continue"
 
 
 def mk_commit(path: str, commit_text: str, other_text: list = []):
@@ -103,6 +182,8 @@ def mk_commit(path: str, commit_text: str, other_text: list = []):
                 ord.append("-m")
                 ord.append(i)
         subprocess.run(ord, cwd=fpath, check=True, capture_output=True)
+    except subprocess.CalledProcessError as e:
+        print(f"{PRMT.ERR}commiting failed: {e}{DEFAULT}")
     except FileNotFoundError:
         print(f"{PRMT.ATT}No '.git' was found in the current path {PINK}'{path}'!{DEFAULT}")
     except OSError as e:
@@ -110,12 +191,12 @@ def mk_commit(path: str, commit_text: str, other_text: list = []):
 
 
 def handle_commit(path: str):
+    cont = check_untracked(path)
+    if cont == "canceled":
+        return
     cmt_text, ocmt_ls = get_commit_info()
     if cmt_text == "canceled":
         return
-    print(f"{PRMT.MANA}Adding files from {path} to commit...")
-    sleep(.3)
-    mk_add(path)
     print(f"{PRMT.MANA}Starting the commit informations system")
     sleep(.5)
     print(f"{PRMT.MANA}Creating commit text...")
@@ -135,7 +216,7 @@ def mk_push(path: str, force: bool = False):
     except FileNotFoundError:
         print(f"{PRMT.ATT}No '.git' was found in the current path {PINK}'{path}'!{DEFAULT}")
     except subprocess.CalledProcessError as e:
-        print(f"{PRMT.ERR} push failed: {e}{DEFAULT}")
+        print(f"{PRMT.ERR}push failed: {e}{DEFAULT}")
     except OSError as e:
         print(f"{PRMT.ERR} {e}{DEFAULT}")
 
@@ -163,6 +244,8 @@ def mk_new_branch(path: str, branch_name: str, base_branch: str):
     ord = ["git", "checkout", "-b", branch_name, base_branch]
     try:
         subprocess.run(ord, cwd=fpath, check=True, capture_output=True)
+    except subprocess.CalledProcessError as e:
+        print(f"{PRMT.ERR}making a new branch failed: {e}{DEFAULT}")
     except FileNotFoundError:
         print(f"{PRMT.ATT}No '.git' was found in the current path {PINK}'{path}'!{DEFAULT}")
     except OSError as e:

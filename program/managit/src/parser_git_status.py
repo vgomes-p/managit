@@ -11,20 +11,20 @@ conflits_explain = {
 }
 
 track_explain = {
-".M": "modified: ",
-"M.": "modified: ",
-"MM": "modified: ",
-"A.": "added: ",
-".A": "added: ",
-"D.": "deleted: ",
-".D": "deleted: ",
-"DD": "deleted: ",
-"R.": "renamed: ",
-".R": "renamed: ",
-"C.": "copied: ",
-".C": "copied: ",
-"T.": "type changed: ",
-".T": "type changed: ",
+".M": "modification not staged: ",
+"M.": "modification staged: ",
+"MM": "modification staged and not staged: ",
+"A.": "adding staged: ",
+".A": "adding not staged: ",
+"D.": "deleting staged: ",
+".D": "deleting not staged: ",
+"DD": "deleting staged and not staged: ",
+"R.": "renaming staged: ",
+".R": "renaming not staged: ",
+"C.": "copying staged: ",
+".C": "copying not staged: ",
+"T.": "type changing staged: ",
+".T": "type changing not staged: ",
 "?": "untracked file: ",
 "!": "ignored: "
 }
@@ -92,7 +92,7 @@ def is_files_track(line: str):
 
 def file_and_stage_tranlater(track: str, file: str):
     track_text = track_explain[track]
-    return f"   {track_text}{file}\n"
+    return f"\n   {track_text}{file}"
 
 
 def get_file_and_stage(line: str):
@@ -139,31 +139,34 @@ def build_new_status(branch_stage: str, conflits: list, files_track_stage: list,
         for conflit in conflits:
             to_add = f" {conflit}\n" 
             ret.append(to_add)
-    ret.append(f"{DEFAULT}\n")
+    ret.append(f"{DEFAULT}")
     untracked = 0
     if files_track_stage:
-        to_add = f"{CYAN}Here are the uncommited changes (run 'commit' to include them in next push):{DEFAULT}\n"
+        to_add = f"\n{CYAN}Here are the uncommited changes (run 'commit' to include them in next push):{DEFAULT}"
         ret.append(to_add)
         for file_status in files_track_stage:
-            if "untracked" in file_status and untracked == 0:
-                to_add = f"{CYAN}Untracked files (run 'commit' to include them in next push):{DEFAULT}\n"
+            if str(file_status).strip().startswith("untracked") and untracked == 0:
+                to_add = f"{CYAN}\nUntracked files (run 'add' to include them in next commit):{DEFAULT}"
                 ret.append(to_add)
                 untracked = 1
-            if "modified" in file_status:
-                line_color = YLOW
-            elif "added" in file_status:
-                line_color = GREEN
-            elif "untracked" in file_status:
-                line_color = PINK
-            elif "ignored" in file_status:
-                line_color = PINK
-            elif "deleted" in file_status:
+            if "not staged:" in file_status:
                 line_color = RED
-            elif "copied" in file_status:
+                file_status = f"\n   [need to be add] | {file_status.strip().replace('\n', '')}"
+            elif str(file_status).strip().startswith("modification staged: "):
+                line_color = YLOW
+            elif str(file_status).strip().startswith("adding staged: "):
+                line_color = GREEN
+            elif str(file_status).strip().startswith("untracked"):
+                line_color = PINK
+            elif str(file_status).strip().startswith("ignored"):
+                line_color = PINK
+            elif str(file_status).strip().startswith("deleting staged: "):
+                line_color = RED
+            elif str(file_status).strip().startswith("copying staged: "):
                 line_color = DEFAULT + BOLD
-            elif "renamed" in file_status:
+            elif str(file_status).strip().startswith("renaming staged: "):
                 line_color = DEFAULT + BOLD
-            elif "type_changed" in file_status:
+            elif str(file_status).strip().startswith("type changing staged: "):
                 line_color = DEFAULT + BOLD
             else:
                 line_color = DEFAULT
@@ -174,3 +177,7 @@ def build_new_status(branch_stage: str, conflits: list, files_track_stage: list,
 def handle_print_status(git_return: str):
     branch_stage, conflits, files_track_stage, has_conflit = get_status_parts(git_return)
     print(build_new_status(branch_stage, conflits, files_track_stage, has_conflit))
+
+def return_untracked(git_return: str):
+    branch_stage, conflits, files_track_stage, has_conflit = get_status_parts(git_return)
+    return files_track_stage
