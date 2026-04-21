@@ -94,15 +94,22 @@ def mk_add(path: str, files: list): #this is a mess, but i'm tired of working in
 
 
 def _get_file_pattern_list(base_name: str):
-    init_nb = int(base_name[-5])
-    end_nb = int(base_name[-2])
-    splited = list(base_name)
-    for i in range(0, 6):
-        splited.pop(-1)
+    find_pattern_init = base_name.index("{")
+    pattern_nbrs = str(base_name[find_pattern_init:]).replace("{", "").replace("}", "")
+    temp = pattern_nbrs.split("..")
+    init_nb = int(temp[0])
+    end_nb = int(temp[-1])
+    splited = list(base_name[:find_pattern_init])
     base_name = "".join(splited)
     ret = []
-    for i in range(init_nb, end_nb + 1):
-        ret.append(f"{base_name}{i}")
+    if init_nb > end_nb:
+        for i in range(end_nb, init_nb + 1):
+            ret.append(f"{base_name}{i}")
+    if end_nb > init_nb:
+        for i in range(init_nb, end_nb + 1):
+                ret.append(f"{base_name}{i}")
+    else:
+        return [f"{base_name}{init_nb}"]
     return ret
 
 

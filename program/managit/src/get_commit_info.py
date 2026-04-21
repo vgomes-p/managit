@@ -45,7 +45,7 @@ HEADER_EXAMPLE = "feat(hello_world): now the function finish with a new line"
 BODY_EXAMPLE = """BREAKING CHANGE: the function now receives a string, the string
 received will be printed after 'Hello, '!
 
-Now the function finish the strin with a new line."""
+Now the function finish the string with a new line."""
 
 FOOTER_EXAMPLE = """Reviewed-by: vgomes-p
 Refs: #123"""

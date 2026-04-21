@@ -36,10 +36,10 @@ def block_signals():
 
 
 valid_entries = BOLD + """
-pull: check is pulling is necessary
+pull:   check if pulling is necessary
 status: shows the track of files in the repository.
 commit: add and commit updates
-push: push updates
+push:   push updates
 branch: create a new branch
 cancel: to finish any operation [cancel does not work on input mode,
         entry 'eof' to finish them]. You will be informed when you
