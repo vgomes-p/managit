@@ -1,7 +1,7 @@
 from time import sleep
 import os
 
-def clear(init_wait_time: int=0, final_wait_time: int=0):
+def clear(init_wait_time: float=0.0, final_wait_time: float=0.0):
     """
     Clear the terminal screen with optional delays.
     
@@ -19,6 +19,6 @@ def clear(init_wait_time: int=0, final_wait_time: int=0):
     :return: None
     :rtype: None
     """
-    sleep(float(init_wait_time))
+    sleep(init_wait_time)
     os.system("cls" if os.name == "nt" else "clear")
-    sleep(float(final_wait_time))
+    sleep(final_wait_time)

@@ -48,6 +48,40 @@ shells command: clear, ls [no flags], cd (or just the path), and exit
 [note: commands with 'CTRL' do not work while managit shell is running!
 memory {arrow up or down to access previous commands} is not active]""" + DEFAULT
 
+
+others_cmds = {"pull": handle_pull,
+        "status": handle_status,
+        "commit": handle_commit,
+        "push": handle_push,
+        "branch": handle_new_branch,
+}
+
+special_cmds = ["clear", "ls", "cd", "add"]
+
+def exec_others_cmd(cmd: str, path: str):
+    exec = others_cmds.get(cmd)
+    if exec:
+        exec(path)
+    else:
+        print(f"{PRMT.ERR} '{cmd}' is an invalid entry, the valid entries are{DEFAULT}{valid_entries}")
+
+
+def exec_special_cmds(entry: str, path: str):
+    if cnt_pipes(entry):
+        print(f"{PRMT.ERR} pipes are not supported yet!{DEFAULT}")
+    elif entry.lower() == "clear":
+        clear()
+    elif (entry.lower().startswith("cd ") or
+        entry.startswith("..") or
+        entry.lower() == "cd" or
+        check_dir_exits(entry)):
+        handle_cd(entry)
+    elif entry.lower().startswith("add"):
+        handle_add(path, entry)
+    elif entry.lower().startswith("ls ") or entry.lower() == 'ls':
+        handle_ls(entry)
+
+
 def managit_shell():
     print(init_txt)
     print(f"{CYAN}           Welcome to Managit, Your personal git manager!{DEFAULT}")
@@ -58,29 +92,12 @@ def managit_shell():
             path = get_current_path()
             update_shells_prompt(path)
             entry = input(PRMT.USER).strip()
+            parser_entry = entry.split()
             if entry.lower() == "exit":
                 qsig = 1
-            elif cnt_pipes(entry):
-                print(f"{PRMT.ERR} pipes are not supported yet!{DEFAULT}")
-            elif entry.lower().startswith("cd ") or entry.startswith("..") or entry.lower() == "cd":
-                handle_cd(entry)
-            elif check_dir_exits(entry):
-                handle_cd(entry)
-            elif entry.lower().startswith("add"):
-                handle_add(path, entry)
-            elif entry.lower() == "clear":
-                clear()
-            elif entry.lower().startswith("ls ") or entry.lower() == 'ls':
-                handle_ls(entry)
-            elif entry.lower() == "pull":
-                handle_pull(path)
-            elif entry.lower() == "status":
-                handle_status(path)
-            elif entry.lower() == "commit":
-                handle_commit(path)
-            elif entry.lower() == "push":
-                handle_push(path)
-            elif entry.lower() == "branch":
-                handle_new_branch(path)
+            elif (parser_entry[0] in special_cmds or
+                  entry.startswith("..") or
+                  check_dir_exits(entry)):
+                exec_special_cmds(entry, path)
             else:
-                print(f"{PRMT.ERR} '{entry}' is an invalid entry, the valid entries are{DEFAULT}{valid_entries}")
+                exec_others_cmd(parser_entry[0], path)

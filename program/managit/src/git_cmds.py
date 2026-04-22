@@ -261,20 +261,24 @@ def mk_new_branch(path: str, branch_name: str, base_branch: str):
 
 def handle_new_branch(path):
     while True:
-        branch_name = input(f"{PRMT.MANA}What's the new branch name?\n{PRMT.USER}") + DEFAULT
-        print(f"The new branch name will be '{branch_name}'. Confirm that? ['y' for yes, 'c' or 'n' to change the name]")
-        conf = input(PRMT.USER).lower() + DEFAULT
-        if conf == "cancel":
+        print(f"{PRMT.MANA}What's the new branch name?{DEFAULT}")
+        branch_name = input(f"{PRMT.USER}")
+        if branch_name == "cancel":
+            return
+        print(f"The new branch name will be '{branch_name}'. Confirm that? ['y' for yes, 'n' to change the name and 'c' or 'cancel' to cancel the process]")
+        conf = input(PRMT.USER).lower()
+        if conf == "cancel" or conf == 'c':
             return
         elif conf == 'y':
             break
-        elif conf == 'c' or conf == 'n':
+        elif conf == 'n':
             continue
         else:
             print(f"{PRMT.ERR} '{conf}'is an invalid answer!{DEFAULT}")
             continue
     while True:
-        conf = input(f"Will the base branch be other than 'main'? ['y' for yes, 'n' for no]\n{PRMT.USER}").lower + DEFAULT
+        print("Will the base branch be other than 'main'? ['y' for yes, 'n' for no]" + DEFAULT)
+        conf = input(f"{PRMT.USER}").lower
         if conf == "cancel":
             return
         elif conf == 'y':
@@ -282,14 +286,15 @@ def handle_new_branch(path):
             break
         elif conf == 'n':
             while True:
-                base_branch = input(f"{PRMT.MANA}What's the base branch?\n{PRMT.USER}") + DEFAULT
-                print(f"The base branch name will be '{base_branch}'. Confirm that? ['y' for yes, 'c' or 'n' to change the name]")
-                conf = input(PRMT.USER).lower() + DEFAULT
-                if conf == "cancel":
+                print(f"{PRMT.MANA}What's the base branch?{DEFAULT}")
+                base_branch = input(f"{PRMT.USER}")
+                print(f"The base branch name will be '{base_branch}'. Confirm that? ['y' for yes, 'n' to change the base branch and 'c' or 'cancel' to cancel the process]{DEFAULT}")
+                conf = input(PRMT.USER).lower()
+                if conf == "cancel" or conf == 'c':
                     return
                 elif conf == 'y':
                     break
-                elif conf == 'c' or conf == 'n':
+                elif conf == 'n':
                     continue
                 else:
                     print(f"{PRMT.ERR} '{conf}'is an invalid answer!{DEFAULT}")
