@@ -14,7 +14,6 @@ def main():
     parser.add_argument("--update", action="store_true", help="Update the program")
     parser.add_argument("--fix", action="store_true", help="Fix if the program branch is different than 'main'")
     parser.add_argument("--find", action="store_true", help="Checks is ~/.managit")
-    parser.add_argument("--reinstall", action="store_true", help="Reinstall the program.")
     parser.add_argument("--uninstall", action="store_true", help="Show the steps to uninstall managit.")
 
     args = parser.parse_args()
@@ -32,9 +31,6 @@ def main():
     elif args.find:
         find()
         sys.exit(0)
-    elif args.reinstall:
-        reinstall()
-        sys.exit(0)
     elif args.uninstall:
         uninstall()
         sys.exit(0)
@@ -50,21 +46,25 @@ def pull_update():
         subprocess.run(["git", "pull", "origin", "main"],
                        cwd=root, check=True, text=True,
                        capture_output=True)
+        return 0
     except subprocess.CalledProcessError as e:
         print(f"Error: pulling updates failed: {e.stderr if e.stderr else e}")
         if "There is no tracking information" in e.stderr:
             print("TIP: try run 'managit --fix'!")
+        return 1
     except FileNotFoundError:
         print("Error: Git not installed or not found in PATH.")
+        return 1
     except OSError as e:
         print("""Error: Failed to access '~/.managit'!
 ┌──────────────────────────────────────────────────────────────┐
 │Possible solution:                                            │
 ┌──────────────────────────────────────────────────────────────┐
 │Run 'managit --find', if it returns 'managit root not found', │
-│run 'managit --reinstall'                                     │
+│clone and reinstall the repository.                           │
 └──────────────────────────────────────────────────────────────┘
 """)
+        return 1
     pass
 
 
@@ -138,33 +138,6 @@ def clone():
         return 1
     return 0
 
-
-manual = """┌──────────────────────────────────────────────────────────────┐
-│Manual process:                                               │
-├──────────────────────────────────────────────────────────────┤
-│cd ~                                                          │
-│sudo pip uninstall managit --break-system-packages            │
-│sudo rm -rfd .managit                                         │
-│git clone https://github.com/vgomes-p/managit.git ~/.managit  │
-│cd .managit/program                                           │
-│sudo pip install ~/.managit/program/. --break-system-packages │
-└──────────────────────────────────────────────────────────────┘"""
-
-
-def reinstall():
-    #to_rm = os.path.expanduser("~/.managit/")
-    try:
-        #shutil.rmtree(to_rm, ignore_errors=True)
-        if clone() == 1:
-            if install() == 0:
-                print("Installed successfully.")
-                return
-        print("Error: failed to reinstall managit. Try to do is manually.\n")
-        print(manual)
-    except:
-        print("Error: failed to reinstall managit. Try to do is manually.\n")
-        print(manual)
-    return
 
 def uninstall():
     print("Step 1: Run 'sudo pip uninstall managit --break-system-packages'.")
