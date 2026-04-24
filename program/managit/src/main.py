@@ -43,7 +43,7 @@ def main():
         sys.exit(0)
 
 root = os.path.expanduser("~/.managit/")
-program_files = os.path.expanduser("~/.managit/project/")
+program_files = os.path.expanduser("~/.managit/program/")
 
 def pull_update():
     try:
@@ -84,23 +84,27 @@ def install():
     try:
         subprocess.run(["sudo", "pip", "install", "-e", ".", "--break-system-packages"],
                        cwd=program_files, check=True, text=True, capture_output=True)
+        return 0
     except subprocess.CalledProcessError as e:
         print(f"Error: failed to install updates: {e.stderr if e.stderr else e}")
+        return 1
     except FileNotFoundError:
         print("Error: pip is not installed or not found in PATH.")
+        return 1
     except OSError as e:
         print(f"Error accessing repository directory: {e}")
+        return 1
 
 
 def update():
     try:
         pull_update()
     except:
-        print("Error: failed t updating...")
+        print("Error: failed updating...")
         return
     try:
-        install()
-        print("Updated installed successfully.")
+        if install() == 0:
+            print("Updated installed successfully.")
     except subprocess.CalledProcessError as e:
         print(f"Error: failed to install update: {e.stderr if e.stderr else e}")
     except FileNotFoundError:
