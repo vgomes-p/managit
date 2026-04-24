@@ -49,37 +49,23 @@ shells command: clear, ls [no flags], cd (or just the path), and exit
 memory {arrow up or down to access previous commands} is not active]""" + DEFAULT
 
 
-others_cmds = {"pull": handle_pull,
+cmds = {"pull": handle_pull,
         "status": handle_status,
         "commit": handle_commit,
         "push": handle_push,
         "branch": handle_new_branch,
+        "cd": handle_cd,
+        "ls": handle_ls,
+        "add": handle_add
 }
 
-special_cmds = ["clear", "ls", "cd", "add"]
-
-def exec_others_cmd(cmd: str, path: str):
-    exec = others_cmds.get(cmd)
+def exec_cmd(**kwargs):
+    cmd = kwargs.get("cmd")
+    exec = cmds.get(cmd)
     if exec:
-        exec(path)
+        exec(**kwargs)
     else:
         print(f"{PRMT.ERR} '{cmd}' is an invalid entry, the valid entries are{DEFAULT}{valid_entries}")
-
-
-def exec_special_cmds(entry: str, path: str):
-    if cnt_pipes(entry):
-        print(f"{PRMT.ERR} pipes are not supported yet!{DEFAULT}")
-    elif entry.lower() == "clear":
-        clear()
-    elif (entry.lower().startswith("cd ") or
-        entry.startswith("..") or
-        entry.lower() == "cd" or
-        check_dir_exits(entry)):
-        handle_cd(entry)
-    elif entry.lower().startswith("add"):
-        handle_add(path, entry)
-    elif entry.lower().startswith("ls ") or entry.lower() == 'ls':
-        handle_ls(entry)
 
 
 def managit_shell():
@@ -95,9 +81,11 @@ def managit_shell():
             parser_entry = entry.split()
             if entry.lower() == "exit":
                 qsig = 1
-            elif (parser_entry[0] in special_cmds or
-                  entry.startswith("..") or
-                  check_dir_exits(entry)):
-                exec_special_cmds(entry, path)
+            elif entry.startswith(".."):
+                 handle_cd(entry = entry, path = path)
+            elif check_dir_exits(entry):
+                handle_cd(entry = entry, path = path)
+            elif entry == "clear":
+                clear()
             else:
-                exec_others_cmd(parser_entry[0], path)
+                exec_cmd(cmd = parser_entry[0], path = path, entry = entry)

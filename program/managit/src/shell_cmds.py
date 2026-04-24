@@ -7,7 +7,8 @@ def get_current_path():
     return os.getcwd()
 
 
-def handle_cd(new_path: str):
+def handle_cd(**kwargs):
+    new_path = kwargs.get("entry")
     if new_path == "cd":
         print(f"{PRMT.ERR} 'cd' needs a path")
         return
@@ -65,7 +66,8 @@ def run_ls(path: str = "."):
     print("")
 
 
-def handle_ls(entry: str):
+def handle_ls(**kwargs):
+    entry = kwargs.get("entry")
     f_entry = entry.replace("ls ", "").replace("ls", "")
     if "-" in f_entry:
         print(f"{PRMT.ERR} ls flags are not implemented!{DEFAULT}")

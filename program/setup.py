@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 NAME = "managit"
-VERSION = "1.0.b1"
+VERSION = "1.0.1b2"
 DESCRIPTION = "Your personal git manager!"
 AUTHOR = "Vinny | vgomes-p"
 AUTHOR_EMAIL = ""

@@ -21,7 +21,8 @@ def get_pull(path: str):
         print(f"{PRMT.ERR}Error on accessing the repository directory: {e}{DEFAULT}")
 
 
-def handle_pull(path: str):
+def handle_pull(**kwargs):
+    path = kwargs.get("path")
     fpath = os.path.expanduser(path)
     print(f"{PRMT.MANA}Checking if pulling is necessary...")
     sleep(.5)
@@ -43,18 +44,19 @@ def handle_pull(path: str):
         print(f"{PRMT.ERR}Error on accessing the repository directory: {e}{DEFAULT}")
 
 
-def handle_status(path: str):
+def handle_status(**kwargs):
+    path = kwargs.get("path")
     fpath = os.path.expanduser(path)
     try:
         ret = subprocess.run(["git", "status", "--porcelain=v2", "--branch"], cwd=fpath, check=True, text=True, capture_output=True)
         handle_print_status(ret.stdout)
         #print(ret.stdout)
     except subprocess.CalledProcessError as e:
-        print(f"{PRMT.ERR}status failed: {e}{DEFAULT}")
+        print(f"{PRMT.ERR}status failed: {e}{DEFAULT}") # not git file found
     except FileNotFoundError:
         print(f"{PRMT.ATT}No '.git' was found in the current path {PINK}'{path}'!{DEFAULT}")
     except OSError as e:
-        print(f"{PRMT.ERR}Error on accessing the repository directory: {e}{DEFAULT}")
+        print(f"{PRMT.ERR} Error on accessing the repository directory: {e}{DEFAULT}")
 
 
 def mk_add(path: str, files: list): #this is a mess, but i'm tired of working in add...
@@ -113,7 +115,9 @@ def _get_file_pattern_list(base_name: str):
     return ret
 
 
-def handle_add(path: str, entry: str):
+def handle_add(**kwargs):
+    path = kwargs.get("path")
+    entry = kwargs.get("entry")
     files = []
     if entry.strip() == "add" or entry.strip() == "*":
         files = ["."]
@@ -197,7 +201,8 @@ def mk_commit(path: str, commit_text: str, other_text: list = []):
         print(f"{PRMT.ERR}Error on accessing the repository directory: {e}{DEFAULT}")
 
 
-def handle_commit(path: str):
+def handle_commit(**kwargs):
+    path = kwargs.get("path")
     cont = check_untracked(path)
     if cont == "canceled":
         return
@@ -228,7 +233,8 @@ def mk_push(path: str, force: bool = False):
         print(f"{PRMT.ERR} {e}{DEFAULT}")
 
 
-def handle_push(path):
+def handle_push(**kwargs):
+    path = kwargs.get("path")
     print(f"{PRMT.MANA}Do you want to force push? ['y' for yes, 'n' for no]")
     while True:
         check = input(PRMT.USER).lower()
@@ -259,7 +265,8 @@ def mk_new_branch(path: str, branch_name: str, base_branch: str):
         print(f"{PRMT.ERR}Error on accessing the repository directory: {e}{DEFAULT}")
 
 
-def handle_new_branch(path):
+def handle_new_branch(**kwargs):
+    path = kwargs.get("path")
     while True:
         print(f"{PRMT.MANA}What's the new branch name?{DEFAULT}")
         branch_name = input(f"{PRMT.USER}")
